@@ -12,8 +12,8 @@ env:
   PROJECT_NAME: adam
   AWS_REGION: ap-northeast-2
   S3_BUCKET: lmr-cicd
-  CODE_DEPLOY_APPLICATION_NAME: lmr-adam
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: lmr-adam-prdt
+  CODE_DEPLOY_APPLICATION_NAME: lmr-costco
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: lmr-costco-prdt
 
 permissions:
   contents: read

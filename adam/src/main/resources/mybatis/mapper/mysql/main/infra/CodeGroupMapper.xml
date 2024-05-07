@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.codegroup.CodeGroupDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.codegroup.CodeGroupDto"></resultMap>
+
+	<sql id="selectCommon">
+          FROM codegroup a
+         WHERE 1=1
+         <if test="shDelNy != null and !shDelNy.equals('')">AND a.cdgDelNy = #{shDelNy}</if>
+         
+         <choose>
+         	<when test="shOptionDate == 1">AND a.cdgRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+         	<when test="shOptionDate == 2">AND a.cdgUdtDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+         </choose>
+         
+         <choose>
+         	<when test="shOption == 1">AND a.cdgSeq = #{shValue}</when>
+         	<when test="shOption == 2">AND a.cdgName LIKE CONCAT('%', #{shValue}, '%')</when>
+         </choose>
+         
+         <if test="shOptionGroup != null and !shOptionGroup.equals('')">AND a.cdgSeq = #{shOptionGroup}</if> 	
+	</sql>
+    
+    <select id="selectList" resultMap="resultMapObj">
+    	SELECT aa.*
+    	  FROM (
+		        SELECT a.cdgSeq
+					 , a.cdgName
+					 , a.cdgRegDt
+					 , a.cdgUdtDt
+					 , a.cdgDelNy
+					 , (SELECT COUNT(*) 
+					      FROM code aa 
+					     WHERE aa.cdgSeq = a.cdgSeq		        
+					   ) xcodeCount
+		      <include refid="selectCommon"/>
+		         ORDER BY a.cdgSeq DESC
+		         LIMIT 99999999999
+               ) aa
+    	 LIMIT #{pgRowCount}
+    	OFFSET #{pgOffset}          
+    </select>
+	
+    <!-- 카운팅 -->
+    <select id="getCount">
+        SELECT COUNT(*)
+      <include refid="selectCommon"/>
+    </select>
+    
+    <select id="selectOne" resultMap="resultMapObj">
+        SELECT a.cdgSeq
+			 , a.cdgName
+			 , a.cdgRegDt
+			 , a.cdgUdtDt
+			 , a.cdgDelNy
+          FROM codegroup a
+         WHERE 1=1
+           AND a.cdgSeq = #{cdgSeq}
+    </select>
+    
+    <insert id="insert">
+    	INSERT INTO codegroup
+    		( cdgName
+    		, cdgRegDt
+    		, cdgUdtDt
+    		, cdgDelNy
+    		)
+    	VALUES
+    		(
+    		  #{cdgName}
+    		, now()
+    		, now()
+    		, 0
+    		)
+    		
+<!--     		<selectKey resultType="String" keyProperty="seq" order="AFTER"></selectKey> -->
+    </insert>
+    
+    <update id="update">
+    	UPDATE codegroup
+    	   SET cdgName  = #{cdgName}
+    	     , cdgUdtDt = now()
+         WHERE 1=1
+           AND cdgSeq = #{cdgSeq}    	  
+    </update>
+    
+	<update id="updateDelNy">
+		UPDATE codegroup
+		   SET cdgUdtDt = now()
+		   
+		   <choose>
+		   		<when test="cdgDelNy == 0">, cdgDelNy = 1</when>
+		   		<when test="cdgDelNy == 1">, cdgDelNy = 0</when>
+		   </choose>
+         WHERE 1 = 1		
+           AND cdgSeq = #{cdgSeq}
+	</update>
+    
+    <delete id="delete">
+    	DELETE FROM codegroup
+         WHERE 1=1
+           AND cdgSeq = #{cdgSeq}      
+    </delete>
+    
+    <select id="selectListCachedCodeGroupArrayList" resultMap="resultMapObj">
+        SELECT cdgSeq
+             , cdgName
+          FROM codegroup
+         WHERE 1=1
+           AND cdgDelNy = 0
+         ORDER BY cdgSeq            
+    </select>    
+
+    <select id="selectListCodeGroup" resultMap="resultMapObj">
+        SELECT cdgSeq
+             , cdgName
+          FROM codegroup
+         WHERE 1=1
+           AND cdgDelNy = 0
+         ORDER BY cdgSeq            
+    </select>    
+    
+    <!-- 다중선택자료 삭제 -->
+    <delete id="deleteList">
+    	DELETE
+    	  FROM codegroup
+    	 WHERE 1 = 1
+    	   AND cdgSeq IN 
+    	       <foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+    	         #{list}
+    	       </foreach>
+    </delete>
+	  
+</mapper>

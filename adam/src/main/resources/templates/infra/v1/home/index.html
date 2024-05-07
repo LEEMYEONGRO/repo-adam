@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html :class="{'theme-dark': dark}" x-data="data()" lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+	<div th:replace="~{infra/v1/include/headSdm :: head}"></div>
+  
+	<body>
+    	<div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{'overflow-hidden': isSideMenuOpen }">
+	  		<!-- Desktop sidebar -->
+	  		<div th:replace="~{infra/v1/include/bodySdm :: bodyTop(0)}"></div>
+      
+	      	<!-- Backdrop -->
+	      	<div class="flex flex-col flex-1 w-full">
+	      		<div th:replace="~{infra/v1/include/bodySdm :: bodyHeader('','')}"></div>
+      			
+      			<div style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+					<img style="width: 85%; height: auto;"
+                		src="img/cartoon.jpg"
+                		alt="" aria-hidden="true"/>
+                </div>
+      		</div>
+      		
+    	</div>
+	</body>
+</html>

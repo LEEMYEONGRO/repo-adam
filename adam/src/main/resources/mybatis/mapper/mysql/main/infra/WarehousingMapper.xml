@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.warehousing.WarehousingDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.warehousing.WarehousingDto"></resultMap>
+	
+	<sql id="selectCommonSelect">
+        SELECT @ROWNUM := @ROWNUM + 1 xRowNum
+             , b.morSeq xwhsMorSeq
+             , b.morDate xwhsMorDate
+        	 , a.motSeq	xwhsMotSeq
+             , a.motCompCd
+		     , d.mbrClientName xwhsCompCdName
+		     , e.pdtName xwhsPdtName
+		     , IFNULL(a.motCount, 0) xwhsMotCount
+		     , a.motAmt xwhsMotAmt
+		     , c.whsSeq
+		     , c.whsDate
+		     , IFNULL(a.motWarehousingNy, 0) xwhsMotWarehousingNy
+		     , IFNULL(c.whsCount, 0) whsCount
+		     , IFNULL(c.whsDelNy, 0) whsDelNy  
+		     , IFNULL(a.motCount, 0) - (SELECT IFNULL(SUM(whsCount), 0) FROM warehousing aa WHERE aa.motSeq = a.motSeq) xwhsCountTot     
+	</sql>
+	
+	<sql id="selectCommonFrom">
+		  FROM myorderdetail a
+		       JOIN myorder b
+		         ON b.morSeq = a.morSeq
+		       JOIN members d
+		         ON d.mbrSeq = a.motCompCd
+		       JOIN product e
+		         ON e.pdtSeq = a.pdtSeq
+		       LEFT JOIN warehousing c
+		         ON c.motSeq = a.motSeq      		  
+         WHERE 1 = 1 
+           AND (@ROWNUM := 0) = 0         
+         
+         <if test="shDelNy != null and !shDelNy.equals('')">AND IFNULL(a.motDelNy, 0) = #{shDelNy}</if> <!-- 삭제여부 -->
+         
+         <choose>
+         	<when test="shOptionDate == 1">AND b.morDate  BETWEEN #{shDateStart} AND #{shDateEnd}</when> <!-- 발주일 -->
+         	<when test="shOptionDate == 2">AND c.whsDate  BETWEEN #{shDateStart} AND #{shDateEnd}</when> <!-- 입고일 -->
+         	<when test="shOptionDate == 3">AND a.motRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when> <!-- 등록일 -->
+         	<when test="shOptionDate == 4">AND a.motModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when> <!-- 수정일 -->
+         </choose>
+         
+         <choose>
+         	<when test="shOption == 1">AND b.morSeq        LIKE CONCAT('%', #{shValue}, '%')</when> <!-- 발주번호 -->
+         	<when test="shOption == 2">AND d.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when> <!-- 발주처명 -->
+         </choose>         
+	</sql>
+	
+	<select id="selectList" resultMap="resultMapObj">
+		SELECT aa.*
+		  FROM (
+		  		<include refid="selectCommonSelect"/>
+			    <include refid="selectCommonFrom"/>			 
+		         ORDER BY b.morSeq, a.motSeq         
+				 LIMIT 99999999999
+               ) aa
+    	 LIMIT #{pgRowCount}
+    	OFFSET #{pgOffset}  		 
+	</select>
+	
+    <!-- 자료건수 -->
+    <select id="selectOneCount">
+        SELECT COUNT(*)
+      <include refid="selectCommonFrom"/>
+    </select>
+    	
+    <!-- 1건 자료조회 -->
+	<select id="selectOne" resultMap="resultMapObj">
+		SELECT *
+		  FROM (SELECT b.morSeq xwhsMorSeq
+		             , b.morDate xwhsMorDate
+		        	 , a.motSeq	xwhsMotSeq
+		             , a.motCompCd
+				     , d.mbrClientName xwhsCompCdName
+				     , IFNULL(a.motCount, 0) xwhsMotCount
+				     , a.motAmt xwhsMotAmt
+				     <if test="whsSeq != null and !whsSeq.equals('')">, c.whsSeq</if>
+				     <if test="whsSeq != null and !whsSeq.equals('')">, IFNULL(c.whsCount, 0) whsCount</if>
+				     , IFNULL(a.motCount, 0) - (SELECT IFNULL(SUM(whsCount), 0) FROM warehousing aa WHERE aa.motSeq = a.motSeq) xwhsCountTot           		          
+				  FROM myorderdetail a
+				       JOIN myorder b
+				         ON b.morSeq = a.morSeq
+				       JOIN members d
+				         ON d.mbrSeq = a.motCompCd
+				       <if test="whsSeq != null and !whsSeq.equals('')">LEFT JOIN warehousing c</if>
+				       <if test="whsSeq != null and !whsSeq.equals('')">  ON c.motSeq = a.motSeq</if>      		  
+		         WHERE 1 = 1            
+		           AND b.morSeq = #{xwhsMorSeq}
+		           AND a.motSeq = #{xwhsMotSeq}
+               ) a
+         WHERE 1 = 1
+               <if test="whsSeq != null and !whsSeq.equals('')">AND a.whsSeq = #{whsSeq}</if>
+	</select>
+	
+	<!-- 입고입력 -->
+	<insert id="insert">
+		INSERT INTO warehousing
+			( 
+			  whsDate		
+			, whsCount
+			, whsRegDt
+			, whsModDt
+			, whsDelNy
+			, motSeq
+			)
+		VALUES
+			(
+			  now()		
+			, #{xwhsCountTot}
+			, now()
+			, now()
+			, 0
+			, #{xwhsMotSeq}
+			)
+	</insert>
+	
+	<!-- 입고수정 -->
+	<update id="update">
+		UPDATE warehousing
+		   SET whsCount = #{xwhsCountTot}
+			 , whsModDt = now()
+         WHERE 1 = 1		
+           AND whsSeq = #{whsSeq}	
+	</update>
+	
+	<!-- 삭제구분변경 -->
+	<update id="updateDelNy">
+		UPDATE warehousing
+		   SET whsModDt = now()
+		   
+		   <choose>
+		   		<when test="mbrDelNy == 0">, whsDelNy = 1</when>
+		   		<when test="mbrDelNy == 1">, whsDelNy = 0</when>
+		   </choose>
+         WHERE 1 = 1		
+           AND whsSeq = #{whsSeq}
+	</update>
+	
+	<!-- 입고삭제 -->
+	<delete id="delete">
+		DELETE FROM warehousing
+        WHERE 1 = 1		
+          AND whsSeq = #{whsSeq}
+    </delete>
+    
+    <!-- 다중선택자료 삭제 -->
+    <delete id="deleteList">
+    	DELETE
+    	  FROM warehousing
+    	 WHERE 1 = 1
+    	   AND whsSeq IN 
+    	       <foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+    	         #{list}
+    	       </foreach>
+    </delete>
+    
+    <!-- 발주상세 입고상태 -->
+    <select id="selectOneMotWarehousingNy" resultMap="resultMapObj">
+    	SELECT MAX(a.morSeq) xwhsMorSeq
+    	     , IFNULL(SUM(a.motCount),0) - IFNULL(SUM(b.whsCount),0) xwhsRestWarehousing
+    	     , IFNULL(SUM(b.whsCount),0) xwhsSumWarehousing
+  		  FROM myorderdetail a
+  		       LEFT JOIN warehousing b
+  		         ON b.motSeq = a.motSeq
+ 		 WHERE 1 = 1
+ 		   AND a.motSeq = #{xwhsMotSeq}
+    </select>
+    
+    <!-- 발주상세 입고상태 변경 -->
+    <update id="updateMotWarehousingNy">
+    	UPDATE myorderdetail
+    	   SET motModDt = now()
+    	     , motWarehousingNy = #{xwhsMotWarehousingNy}
+    	 WHERE motSeq = #{xwhsMotSeq}
+    </update>
+    
+    <!-- 발주 입고상태 -->
+    <select id="selectOneMorWarehousingNy" resultMap="resultMapObj">
+    	SELECT (SELECT COUNT(*) FROM myorderdetail aa WHERE aa.morSeq = a.morSeq AND aa.motWarehousingNy = 0) xwhsWarehousing_0
+    	     , (SELECT COUNT(*) FROM myorderdetail bb WHERE bb.morSeq = a.morSeq AND bb.motWarehousingNy = 1) xwhsWarehousing_1
+    	     , (SELECT COUNT(*) FROM myorderdetail cc WHERE cc.morSeq = a.morSeq AND cc.motWarehousingNy = 2) xwhsWarehousing_2
+  		  FROM myorder a
+ 		 WHERE 1 = 1
+ 		   AND a.morSeq = #{xwhsMorSeq}
+    </select>
+    
+    <!-- 발주 입고상태 변경 -->
+    <update id="updateMorWarehousingNy">
+    	UPDATE myorder
+    	   SET morModDt = now()
+    	     , morWarehousingNy = #{xwhsMotWarehousingNy}
+    	 WHERE morSeq = #{xwhsMorSeq}
+    </update>
+
+</mapper>

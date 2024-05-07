@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.stock.StockDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.stock.StockDto"></resultMap>
+	
+	<sql id="selectCommon">
+		SELECT @ROWNUM := @ROWNUM + 1 rowNum
+		     , aa.mbrClientName
+		     , aa.pdtName
+     	     , aa.pdtPrice
+		     , SUM(aa.sumMotQuentity) sumMotQuentity
+		     , SUM(aa.sumMotAmt) sumMotAmt
+		     , SUM(aa.sumWshQuentity) sumWshQuentity
+		     , SUM(aa.sumWshAmt) sumWshAmt
+		     , SUM(aa.sumOrtQuentity) sumOrtQuentity
+		     , SUM(aa.sumOrtAmt) sumOrtAmt
+		     , SUM(aa.sumWshQuentity) - SUM(aa.sumOrtQuentity) stkQuentity
+		     , SUM(aa.sumWshAmt) - SUM(aa.sumOrtAmt) stkAmt
+		  FROM (SELECT c.mbrClientName
+				     , b.pdtName
+     				 , b.pdtPrice
+				     , SUM(a.motCount) sumMotQuentity
+				     , SUM(a.motAmt) sumMotAmt
+				     , 0 sumWshQuentity
+				     , 0 sumWshAmt
+				     , 0 sumOrtQuentity
+				     , 0 sumOrtAmt
+				  FROM myorderdetail a
+				       JOIN product b
+				         ON b.pdtSeq = a.pdtSeq
+				       JOIN members c
+				         ON c.mbrSeq = b.mbrSeq
+				 GROUP BY c.mbrClientName
+				     , b.pdtName
+     				 , b.pdtPrice
+				UNION 
+				SELECT d.mbrClientName
+				     , c.pdtName
+     				 , c.pdtPrice
+				     , 0
+				     , 0
+				     , SUM(a.whsCount) sumWshQuentity
+				     , SUM(a.whsCount*c.pdtPrice) sumWshAmt
+				     , 0
+				     , 0
+				  FROM warehousing a
+				       JOIN myorderdetail b
+				         ON b.motSeq = a.motSeq
+				       JOIN product c
+				         ON c.pdtSeq = b.pdtSeq
+				       JOIN members d
+				         ON d.mbrSeq = c.mbrSeq
+				 GROUP BY d.mbrClientName
+				     , c.pdtName
+     				 , c.pdtPrice
+				UNION
+				SELECT c.mbrClientName
+				     , b.pdtName
+     				 , b.pdtPrice
+				     , 0
+				     , 0
+				     , 0
+				     , 0
+				     , SUM(a.ortCount) sumOrtQuentity
+				     , SUM(a.ortAmt) sumOrtAmt
+				  FROM orderdetail a
+				       JOIN product b
+				         ON b.pdtSeq = a.pdtSeq
+				       JOIN members c
+				         ON c.mbrSeq = b.mbrSeq
+				 WHERE IFNULL(a.ortShippingCd,'X') <![CDATA[<>]]> 'X'
+				 GROUP BY c.mbrClientName
+				     , b.pdtName
+     				 , b.pdtPrice
+				) aa
+		  WHERE 1 = 1 
+            AND (@ROWNUM := 0) = 0 
+         <choose>
+         	<when test="shOption == 1">AND aa.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when> <!-- 발주처명 -->
+         	<when test="shOption == 2">AND aa.pdtName       LIKE CONCAT('%', #{shValue}, '%')</when> <!-- 상품명 -->
+         </choose> 
+		  GROUP BY aa.mbrClientName
+		      , aa.pdtName
+     		  , aa.pdtPrice
+	</sql>
+	
+	<select id="selectList" resultMap="resultMapObj">
+		SELECT aaa.*
+		  FROM (
+		  		<include refid="selectCommon"/>
+		         ORDER BY aa.mbrClientName
+		             , aa.pdtName
+     				 , aa.pdtPrice        
+				 LIMIT 99999999999
+               ) aaa
+         ORDER BY aaa.rowNum DESC
+    	 LIMIT #{pgRowCount}
+    	OFFSET #{pgOffset}  		 
+	</select>
+	
+    <!-- 자료건수 -->
+    <select id="selectOneCount">
+        SELECT COUNT(*)
+		  FROM (
+      			<include refid="selectCommon"/>
+      		   ) aaa
+    </select>
+
+</mapper>

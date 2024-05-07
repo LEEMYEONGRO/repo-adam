@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+	<aside th:fragment="bodyTop(formIndex)" class="z-10 hidden overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
+		<div class="py-4 text-gray-500 dark:text-gray-400">
+			<a class="inline-flex items-center w-full text-lg font-bold text-gray-800 dark:text-gray-200"
+				href="/index" style="color: blueviolet">
+				&nbsp;COSTCO				
+			</a>
+			<a class="inline-flex items-center w-full text-lg font-bold text-gray-800 dark:text-gray-200"
+				href="/index" style="color: blueviolet;">
+				&emsp;CENTER				
+			</a>
+	
+			<ul class="mt-6">
+				<li class="relative px-6 py-3">
+					<span th:if="${formIndex} == 0" class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+					<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+						href="/index">
+						<svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+							<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+						</svg>
+						<span class="ml-4">HOME</span>
+					</a>
+				</li>
+			</ul>
+			
+			<ul>
+				<li class="relative px-6 py-3">
+					<span th:if="${formIndex} == 1" class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+					<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+						href="/myorderDetailList">
+						<svg class="w-5 h-5" data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"></path>
+						</svg>
+						<span class="ml-4">발주관리</span>
+					</a>
+				</li>				
+					
+				<li class="relative px-6 py-3">
+					<span th:if="${formIndex} == 2" class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+					<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+						href="/warehousingList">
+						<svg class="w-5 h-5" data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3 3m0 0 3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75"></path>
+						</svg>						
+						<span class="ml-4">입고관리</span>
+					</a>
+				</li>				
+					
+				<li class="relative px-6 py-3">
+					<span th:if="${formIndex} == 3" class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+					<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+						href="/orderDetailList">
+						<svg class="w-5 h-5" data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75v-4.5m0 4.5h4.5m-4.5 0 6-6m-3 18c-8.284 0-15-6.716-15-15V4.5A2.25 2.25 0 0 1 4.5 2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44-.054.902-.417 1.173l-1.293.97a1.062 1.062 0 0 0-.38 1.21 12.035 12.035 0 0 0 7.143 7.143c.441.162.928-.004 1.21-.38l.97-1.293a1.125 1.125 0 0 1 1.173-.417l4.423 1.106c.5.125.852.575.852 1.091V19.5a2.25 2.25 0 0 1-2.25 2.25h-2.25Z"></path>
+						</svg>						
+						<span class="ml-4">주문관리</span>
+					</a>
+				</li>				
+					
+				<li class="relative px-6 py-3">
+					<span th:if="${formIndex} == 4" class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+					<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+						href="/stockList">
+						<svg class="w-5 h-5" data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"></path>
+						</svg>
+						<span class="ml-4">재고관리</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+	
+    <header th:fragment="bodyHeader(menuName1, menuName2)" class="py-4 bg-white shadow-md dark:bg-gray-800">
+      <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
+        <!-- Search input -->
+        <div class="flex justify-start flex-1 lg:mr-32">
+            <h2 class="my-1 font-semibold text-gray-700 dark:text-gray-200">
+              <a th:href="@{/index}">	              
+	              <span class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+	              	HOME
+	              </span>               
+              </a>
+              
+              <th:block th:if="${menuName1} != ''">
+				  &nbsp;
+	              <a th:href="@{/index}">
+		              <span class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+		              	th:text="${menuName1}">
+		              </span>                   
+	              </a>  
+			  </th:block>
+			  
+			  <th:block th:if="${menuName2} != ''">				  
+		          &nbsp;    				  
+	              <span class="px-3 py-1 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg opacity-50 cursor-not-allowed focus:outline-none"
+	              	th:text="${menuName2}">
+	              </span>                   
+			  </th:block>      
+            </h2>
+        </div>
+        
+        <ul class="flex items-center flex-shrink-0 space-x-6">
+          <!-- Profile menu -->
+          <li class="relative">
+            
+            <button class="align-middle rounded-full focus:outline-none"
+              @click="toggleProfileMenu"
+              @keydown.escape="closeProfileMenu"
+              aria-label="Account"
+              aria-haspopup="true">
+              <img class="object-cover w-9 h-8 rounded-full"
+                src="img/face.jpg"
+                alt="" aria-hidden="true"/>
+	            <apan class="align-middle">[[${session.sessMbrName}]]</apan>
+            </button>
+            <template x-if="isProfileMenuOpen">
+              <ul x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                @click.away="closeProfileMenu"
+                @keydown.escape="closeProfileMenu"
+                class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
+                aria-label="submenu">
+                                
+                <li class="flex">
+                  <button class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                    id="btnLogout" name="btnLogout" type="button"
+                    onclick="fnLogout()">
+                    <svg class="w-4 h-4 mr-3" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>로그아웃</span>
+                  </button>
+                </li>
+              </ul>
+            </template>
+          </li>
+        </ul>
+      </div>
+    </header>
+    
+    <!-- 목록리스트 갯수설정 -->
+	<div th:fragment="bodyPaging" class="flex flex-col md:flex-row mb-4">
+		<div class="md:h-auto sm:mt-auto md:w-1/2">
+			Total:<span th:text="${vo.pgTotalCount}"></span>
+		</div>
+		<div class="flex md:h-auto sm:mt-auto md:w-1/2 sm:justify-end">
+			<select class="block text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+				id="pgRowCount" name="pgRowCount" th:onchange="fnGoList('1')">
+				<option value="5"  th:selected="${vo.pgRowCount == 5}">5</option>
+				<option value="10" th:selected="${vo.pgRowCount == 10}">10</option>
+				<option value="15" th:selected="${vo.pgRowCount == 15}">15</option>
+			</select> 
+		</div>               
+	</div>
+	       
+	<div th:fragment="bodyPagingBtn" class="grid px-4 py-3 font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800 mt-3">
+		<span class="flex items-center col-span-3"></span>
+
+		<!-- 페이지넘김 --> 
+		<span class="flex col-span-3 sm:mt-auto sm:justify-center">
+			<nav aria-label="navigation">
+				<ul class="inline-flex items-center">
+					 <!-- 맨 처음 페이지로 이동하는 버튼 --> 
+					<!--<li>
+						<button class="px-2 py-2 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple mr-2"
+							th:if="${vo.pgStartPage &gt; 1}"
+							th:onclick="javascript:fnGoList('1')">
+							<svg class="w-4 h-4 fill-current" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path clip-rule="evenodd" fill-rule="evenodd" d="M4.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L6.31 10l3.72-3.72a.75.75 0 1 0-1.06-1.06L4.72 9.47Zm9.25-4.25L9.72 9.47a.75.75 0 0 0 0 1.06l4.25 4.25a.75.75 0 1 0 1.06-1.06L11.31 10l3.72-3.72a.75.75 0 0 0-1.06-1.06Z"></path>
+							</svg>
+						</button>
+					</li>-->
+
+					<!-- 이전 블록으로 이동하는 버튼 --> 
+					<li>
+						<button class="px-2 py-2 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple mr-2"
+							th:if="${vo.pgIsPrev == true}"
+							th:onclick="javascript:fnGoList([[${vo.pgStartPage - 1}]])">
+							<svg class="w-4 h-4 fill-current"  data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path clip-rule="evenodd" fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"></path>
+							</svg>
+						</button>
+					</li>
+
+					<!-- 페이지번호 클릭 --> 					
+					<th:block th:if="${vo.pgTotalCount} &gt; 0">
+						<li th:each="pageNum : ${#numbers.sequence(vo.pgStartPage, vo.pgEndPage)}">
+							<button class="px-1 py-1 text-md text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple"
+								th:if="${vo.pgPage == pageNum}">
+								<a class="page-link" th:onclick="javascript:fnGoList([[${pageNum}]])" th:text="|&emsp;${pageNum}&emsp;|"></a>
+							</button>
+
+							<button class="px-1 py-1 text-md rounded-md focus:outline-none focus:shadow-outline-purple"
+								th:unless="${vo.pgPage == pageNum}">
+								<a class="page-link" th:onclick="javascript:fnGoList([[${pageNum}]])" th:text="|&emsp;${pageNum}&emsp;|"></a>
+							</button>
+						</li>
+					</th:block>
+
+					<!-- 다음 블록으로 이동하는 버튼 --> 
+					<li>
+						<button class="px-2 py-2 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple ml-2"
+							th:if="${vo.pgIsNext == true}"
+							th:onclick="javascript:fnGoList([[${vo.pgEndPage + 1}]])">
+							<svg class="w-4 h-4 fill-current" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path clip-rule="evenodd" fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"></path>
+							</svg>
+						</button>
+					</li>
+
+					 <!-- 맨 뒷 페이지로 이동하는 버튼 --> 
+					<!--<li>
+						<button class="px-2 py-2 text-white transition-colors duration-150 bg-purple-600 border border-r-0 border-purple-600 rounded-md focus:outline-none focus:shadow-outline-purple ml-2"
+							th:if="${vo.pgEndPage &lt; vo.pgTotalPageCount}"
+							th:onclick="javascript:fnGoList([[${vo.pgTotalPageCount}]])">
+							<svg class="w-4 h-4 fill-current" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<path clip-rule="evenodd" fill-rule="evenodd" d="M15.28 9.47a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06L13.69 10 9.97 6.28a.75.75 0 0 1 1.06-1.06l4.25 4.25ZM6.03 5.22l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L8.69 10 4.97 6.28a.75.75 0 0 1 1.06-1.06Z"></path>
+							</svg>
+						</button>
+					</li>-->
+				</ul>
+			</nav>
+		</span>
+
+		<span class="flex items-center col-span-3 sm:mt-auto sm:justify-end"></span>
+	</div>	        
+</body>
+
+</html>

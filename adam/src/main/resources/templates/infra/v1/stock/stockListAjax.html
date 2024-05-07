@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<body>
+    	<div id="listData" class="w-full overflow-x-auto">
+			<table class="w-full whitespace-no-wrap">
+  				<!-- 조회결과 리스트 타이틀-->
+				<thead>
+					<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+  						<th class="px-1 py-1" style="text-align: center;">#</th>
+  						<th class="px-2 py-1">제조사</th>
+  						<th class="px-2 py-1">상품명</th>
+  						<th class="px-2 py-1" style="text-align: right;">단가</th>
+  						<th class="px-2 py-1" style="text-align: right;">발주수량</th>
+  						<th class="px-2 py-1" style="text-align: right;">발주금액</th>
+  						<th class="px-2 py-1" style="text-align: right;">입고수량</th>
+  						<th class="px-2 py-1" style="text-align: right;">입고금액</th>
+  						<th class="px-2 py-1" style="text-align: right;">출고수량</th>
+  						<th class="px-2 py-1" style="text-align: right;">출고금액</th>
+  						<th class="px-2 py-1" style="text-align: right;">재고수량</th>
+  						<th class="px-2 py-1" style="text-align: right;">재고금액</th>
+					</tr>
+				</thead>
+  
+				<!-- 조회결과 리스트 내용 -->
+				<tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+					<tr th:if="${#lists.isEmpty(list)}">
+                  		<td colspan="11" class="text-center text-purple-600"> 
+							There is no data !!!
+                  		</td>
+					</tr>
+                  	<tr class="text-gray-700 dark:text-gray-400" th:if="${!#lists.isEmpty(list)}" th:each="list : ${list}">
+                    	<!-- Row순번 -->
+                    	<td id="rowNum" name="rowNum" class="px-3 py-1" th:text="${list.rowNum}" style="text-align: center;"></td>
+                    	<!-- 제조사 -->
+                    	<td class="px-2 py-1" th:text="${list.mbrClientName}"></td>
+                    	<!-- 상품명 -->
+                    	<td class="px-2 py-1" th:text="${list.pdtName}"></td>
+                    	<!-- 단가 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.pdtPrice, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 발주수량 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumMotQuentity, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 발주금액 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumMotAmt, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 입고수량 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumWshQuentity, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 입고금액 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumWshAmt, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 출고수량 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumOrtQuentity, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 출고금액 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.sumOrtAmt, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 재고수량 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.stkQuentity, 1, 'COMMA')}" style="text-align: right;"></td>
+                    	<!-- 재고금액 -->
+                    	<td class="px-2 py-1" th:text="${#numbers.formatInteger(list.stkAmt, 1, 'COMMA')}" style="text-align: right;"></td>
+					</tr> 
+				</tbody>
+			</table>
+
+			<!-- 페이지넘김 -->
+			<div th:replace="~{infra/v1/include/bodySdm :: bodyPagingBtn}"></div>
+		</div> 
+	</body>
+</html>

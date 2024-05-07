@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html :class="{'theme-dark': dark}" x-data="data()" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+      
+	<body>
+						<div id="listData" class="w-full overflow-hidden rounded-lg shadow-xs">
+              				<div class="w-full overflow-x-auto">
+                				<table class="w-full whitespace-no-wrap">
+                  					<!-- 조회결과 리스트 타이틀-->
+                  					<thead>
+                    					<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                      						<th class="px-2 py-1">
+                        						<input class="text-purple-600 form-checkbox focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray mr-3"
+                          							id="checkboxAll" name="checkboxAll" type="checkbox"
+                          							style="height: 15px; width: 15px">
+                      						</th>
+                      						<th class="px-1 py-1" style="text-align: center;">#</th>
+                      						<th class="px-1 py-1" style="text-align: center;">발주번호</th>
+                      						<th class="px-4 py-1" style="text-align: left;">발주일자</th>
+                      						<th class="px-6 py-1" style="text-align: center;">입고여부</th>
+                      						<th class="px-4 py-1" style="text-align: center;">삭제여부</th>
+                      						<th class="px-4 py-1" style="text-align: left;">등록일시</th>
+                      						<th class="px-4 py-1" style="text-align: left;">수정일시</th>
+                      						<th class="px-4 py-1" style="text-align: left;">당담자</th>
+                      						<th class="px-8 py-1" style="text-align: center;">작업</th>
+                    					</tr>
+                  					</thead>
+                  
+                  					<!-- 조회결과 리스트 내용 -->
+                  					<tbody id="trList" class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                  						<!-- 체크된 항목 담을 태그 -->
+                  						<input type="hidden" id="shCheckedArray" name="shCheckedArray" value="" />
+                  						
+                  						<tr th:if="${#lists.isEmpty(list)}">
+					                  		<td colspan="8" class="text-center text-purple-600"> 
+												There is no data !!!
+					                  		</td>
+                  						</tr>
+					                  	<tr class="text-gray-700 dark:text-gray-400" th:if="${!#lists.isEmpty(list)}" th:each="list : ${list}">
+					                  		<td class="px-2 py-1">
+					                  			<!-- <input class="checkboxList text-purple-600 form-checkbox focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray mr-3"
+					                  				id = "checkbox" name="checkbox" type="checkbox"
+					                  				th:value="${list.morSeq}"
+					                        		style="height: 15px; width: 15px"
+					                        		th:checked="false" /> -->
+					                        		<input th:if="${list.xmorCount == 0}" class="checkboxList text-purple-600 form-checkbox focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray mr-3"
+					                  				id = "checkbox" name="checkbox" type="checkbox"
+					                  				th:value="${list.morSeq}"
+					                        		style="height: 15px; width: 15px"
+					                        		th:checked="false" />
+					                    	</td>
+					                    	<td id="xRowNum" name="xRowNum" class="px-1 py-1" th:text="${list.xRowNum}" style="text-align: center;"></td>
+					                    	<td style="text-align: center;" id="morSeq" name="morSeq" class="px-1 py-1" th:text="${list.morSeq}"></td>
+					                    	
+					                    	<td style="text-align: left;" class="px-4 py-1"  th:text="${#dates.format(list.morDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+					                    	
+					                    	<td class="px-6 py-1" style="text-align: center;">
+												<th:block th:switch="${list.morWarehousingNy}" >
+													<span th:case="0" class="px-2 py-1 font-semibold leading-tight text-red-100 bg-red-600 rounded-full dark:text-white dark:bg-red-700"
+						                      		 	th:if="${list.morWarehousingNy != null}">미입고
+						                      		</span>
+						                      		<span th:case="1" class="px-2 py-1 font-semibold leading-tight text-blue-100 bg-blue-600 rounded-full dark:text-white dark:bg-blue-700"
+						                      		 	th:if="${list.morWarehousingNy != null}">완&emsp;료
+						                      		</span>
+						                      		<span th:case="2" class="px-2 py-1 font-semibold leading-tight text-red-100 bg-red-600 rounded-full dark:text-white dark:bg-red-700"
+						                      		 	th:if="${list.morWarehousingNy != null}">일&emsp;부
+						                      		</span>
+												</th:block>
+											</td>
+                        
+					                        <td class="px-4 py-1" style="text-align: center;">
+					                        	<th:block th:switch="${list.morDelNy}" >
+					                        		<span th:case = "0"
+					                        			class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
+					                        			N
+					                        		</span>
+					                        		<span th:case = "1"
+					                        			class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-full dark:bg-orange-700 dark:text-orange-100">
+					                        			Y
+					                        		</span>                        		
+					                        	</th:block>
+					                        </td>        	
+                   	
+					                    	<td style="text-align: left;" class="px-4 py-1" th:text="${#dates.format(list.morRegDt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+					                    	
+					                    	<td style="text-align: left;" class="px-4 py-1" th:text="${#dates.format(list.morModDt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+					                    	<td style="text-align: left;" class="px-4 py-1" th:text="${@membersService.selectOneMembersName(list.mbrSeq)}"></td>
+					                    
+					                    	<td class="px-8 py-1">
+											<!-- 수정 -->
+												<div class="flex flex-col overflow-y-auto md:flex-row">
+												<a th:href="@{/myorderForm(morSeq=${list.morSeq})}">
+	                    	    					<button class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple mr-2"
+	                            						id="btnUpate" name="btnUpdate">
+														
+														<!-- th:href="@{/codeGroupSdmForm(cdgSeq=${list.cdgSeq}, cdgName=${list.cdgName})}" -->
+															<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+																<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"></path>
+																<path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"></path>
+															</svg>															
+														
+	                      							</button>
+	                      							</a>
+	                      							<a th:href="@{/myorderDetailCreate(morSeq=${list.morSeq})}">
+	                      							  <button 
+								                    	id="btnInsert"
+								                    	name="btnInsert"
+								                    	class="btnSave flex items-center px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" aria-label="Create">
+														
+															<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+														  	<path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"></path>
+															</svg>	
+														
+									                  </button> 
+									                </a>
+								                </div>
+                    						</td>
+                  						</tr> 
+                  					</tbody>
+                				</table>
+              				</div>
+
+							<script>
+								// 타이틀바 체크시 리스트 체크박스 체크 및 해제
+								document.getElementById("checkboxAll").addEventListener("change", fnCheckboxCheck);
+							
+								function fnCheckboxCheck() {
+							  		let checkedAll = document.querySelector("#checkboxAll");
+							  		const isChecked = checkedAll.checked;
+							  		$(".checkboxList").prop("checked", isChecked);
+								}  
+							</script>
+              
+							<!-- 페이지넘김 -->
+							<div th:replace="~{infra/v1/include/bodySdm :: bodyPagingBtn}"></div> 
+							         
+							<!-- 삭제버튼, 홈버튼 -->
+							<div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+                				<!-- 삭제버튼 -->
+                				<span class="flex items-center col-span-3">
+                  					<button class="flex items-center px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-lg active:bg-red-600 hover:bg-red-700 focus:outline-none focus:shadow-outline-red"                    
+                    					@click="openModal"
+                    					aria-label="Delete"
+                    					id="btnDelete" name="btnDelete">
+										<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					  						<path clip-rule="evenodd" fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"></path>
+										</svg>
+                  					</button>
+                				</span>              
+              
+                				<span class="flex col-span-3 mt-2 sm:mt-auto sm:justify-center">
+                  					<nav aria-label="Table navigation"></nav>
+                				</span>
+                              
+                				<span class="flex col-span-3 sm:mt-auto sm:justify-end">
+								<!-- 홈버튼 -->
+								<a th:href="@{/myorderDetailList}">   
+								<button class="flex items-center px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" aria-label="Back"> 
+				                    
+										<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+										  <path clip-rule="evenodd" fill-rule="evenodd" d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z"></path>
+										</svg>	
+									
+				                  </button> 
+				                  </a>             
+				                <!-- <button class="flex items-center px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" aria-label="Back">
+				                	<a th:href="@{/myorderDetailList}">
+										<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									  		<path clip-rule="evenodd" fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"></path>
+										</svg>                
+				                  	</a>	                  
+				                </button> -->
+								<!-- 추가버튼 -->        
+								&nbsp;&nbsp;  
+								<a th:href="@{/myorderinsert}">        
+				                 <button 
+			                    	id="btnInsert"
+			                    	name="btnInsert"
+			                    	class="btnSave flex items-center px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" aria-label="Create">
+										
+										<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									  	<path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"></path>
+										</svg>	
+				                 </button>  
+				                </a>                
+                			</span>                
+              			</div>
+            		</div>
+    
+    
+  
+  </body>
+</html>

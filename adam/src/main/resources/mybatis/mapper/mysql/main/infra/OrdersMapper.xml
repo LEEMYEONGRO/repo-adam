@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.orders.OrdersDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.orders.OrdersDto"></resultMap>
+	<!-- 상세주문공통 -->
+	<sql id="selectCommonOrt">
+    	FROM orderdetail a
+			join orders b on b.ordSeq = a.ordSeq
+			join product c on c.pdtSeq = a.pdtSeq
+			left join members d on d.mbrSeq = a.ortCompCd
+			left join members e on e.mbrSeq = a.ortShippingCd
+        WHERE 1=1
+        <if test="shDelNy != null and !shDelNy.equals('')">AND ortDelNy = #{shDelNy}</if>
+        <if test="shReleasedNy != null and !shReleasedNy.equals('')">AND ortReleaseNy = #{shReleasedNy}</if>
+        
+        <choose>
+         	<when test="shOptionDate == 1">AND ordRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        	<when test="shOptionDate == 2">AND ordModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        	<when test="shOptionDate == 3">AND ordDate BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        	<when test="shOptionDate == 4">AND ortReleaseDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        </choose>
+         
+         <choose>
+         	<when test="shOption == 1">AND b.ordSeq = #{shValue}</when>
+         	<when test="shOption == 2">AND c.pdtName LIKE CONCAT('%', #{shValue}, '%')</when>
+         	<when test="shOption == 3">AND d.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when>
+         	<when test="shOption == 4">AND d.mbrName LIKE CONCAT('%', #{shValue}, '%')</when>
+         	<when test="shOption == 5">AND e.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when>
+         	<when test="shOption == 6">AND e.mbrName LIKE CONCAT('%', #{shValue}, '%')</when>
+         </choose>
+         
+	</sql>
+	<!-- 주문공통 -->
+	<sql id="selectCommon">
+    	FROM orders
+        WHERE 1=1
+        <if test="shDelNy != null and !shDelNy.equals('')">AND ordDelNy = #{shDelNy}</if>
+        <if test="shReleasedNy != null and !shReleasedNy.equals('')">AND ordReleasedNy = #{shReleasedNy}</if>
+         
+        <choose>
+         	<when test="shOptionDate == 1">AND ordRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        	<when test="shOptionDate == 2">AND ordModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        	<when test="shOptionDate == 3">AND ordDate BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+        </choose>
+         
+         <choose>
+         	<when test="shOption == 1">AND ordSeq = #{shValue}</when>
+         </choose>
+         
+         <!-- <if test="shOptionGroup != null and !shOptionGroup.equals('')">AND a.cdgSeq = #{shOptionGroup}</if> -->
+	</sql>
+
+	<!-- 상세주문리스트 -->
+	<select id="selectListOrt" resultMap="resultMapObj">
+		select
+			a.ortSeq
+			,a.ortCount
+			,a.ortAmt
+			,a.ortReleaseDt 
+			,a.ortReleaseNy
+			,a.ortRegDt
+			,a.ortModDt
+			,b.ordSeq
+			,b.ordDate
+			,b.ordDelNy
+			,c.pdtName
+			,c.pdtPrice
+			,d.mbrClientName
+			,d.mbrName
+			,e.mbrClientName as xmbrClientName
+			,e.mbrName as xmbrName
+			<include refid="selectCommonOrt"/>
+			ORDER BY b.ordSeq
+			limit #{pgRowCount} offset #{pgOffset}
+	</select>
+	
+	<!-- 카운팅 -->
+    <select id="getCountOrt">
+        SELECT COUNT(*)
+      <include refid="selectCommonOrt"/>
+    </select>
+	
+	<!-- 고객사명을 불러오기 위한 리스트 -->
+	<select id="clientNameList" resultMap="resultMapObj">
+		select 
+			mbrSeq
+			,mbrClientName
+			,mbrClientCd 
+		from members
+		where 
+			mbrClientCd  = '5';
+	</select>
+	<!-- 택배사명을 불러오기 위한 리스트 -->
+	<select id="courierServiceList" resultMap="resultMapObj">
+		select 
+			mbrSeq
+			,mbrClientName
+			,mbrClientCd 
+		from members
+		where 
+			mbrClientCd  = '6';
+	</select>
+	
+	<!-- 주문등록을 위한 제품 리스트 -->
+	<select id="productList" resultMap="resultMapObj">
+		select 
+			pdtSeq 
+			,pdtName 
+			,pdtPrice 
+			,mbrSeq
+		from product
+		where 1=1
+	</select>
+	
+	<select id="selectOne" resultMap="resultMapObj">
+        SELECT
+        	ortSeq
+        	,ortCompCd
+        	,ortCount
+        	,ortAmt
+        	,ortShippingCd
+        	,ortReleaseDt
+        	,ortReleaseNy
+        	,ortDelNy
+        	,ortRegDt
+        	,ortModDt
+        	,ordSeq
+        	,pdtSeq
+        FROM orderdetail
+         WHERE 1 = 1
+           AND ortSeq = #{ortSeq}
+	</select>
+	
+	<!-- 주문리스트 -->
+	<select id="selectList" resultMap="resultMapObj">
+		select
+			ordSeq
+			,ordDate
+			,ordDelNy
+			,ordRegDt
+			,ordModDt
+			,ordReleasedNy
+			,mbrSeq
+			<include refid="selectCommon"/>
+			ORDER BY ordSeq
+			limit #{pgRowCount} offset #{pgOffset}
+	</select>
+	
+	<select id="selectOneOrd" resultMap="resultMapObj">
+        SELECT
+        	ordSeq
+        	,ordDate
+        FROM orders
+         WHERE 1 = 1
+           AND ordSeq = #{ordSeq}
+	</select>
+	
+	
+	
+	<!-- 카운팅 -->
+    <select id="getCount">
+        SELECT COUNT(*)
+      <include refid="selectCommon"/>
+    </select>
+    
+	<!-- 주문목록 추가 -->
+	<insert id="insertOrd">
+		INSERT INTO orders
+			( 
+			  ordDate
+			, ordReleasedNy
+			, ordDelNy
+			, ordRegDt
+			, ordModDt
+			, mbrSeq
+			)
+		VALUES
+			(
+			  now()
+			, 0
+			, 0
+			, now()
+			, now()
+			, 10
+			)
+	</insert>
+
+	<!-- 주문목록 수정 -->
+	<update id="updateOrd">
+		update 
+			orders
+			SET
+				ordSeq = #{ordSeq}
+				,ordDate = #{ordDate}
+				,ordModDt = now()
+			WHERE 
+				ortSeq = #{ortSeq}
+	</update>
+
+	<!-- 상세주문목록 수정 -->
+	<update id="updateOrt">
+		update 
+			orderdetail
+			SET
+				ortCompCd = #{ortCompCd}
+				,ortCount = #{ortCount}
+				,ortAmt = #{ortAmt}
+				,ortShippingCd = #{ortShippingCd}
+				,ortReleaseDt = #{ortReleaseDt}
+				,ortReleaseNy = 1
+				,ortDelNy = 0
+				,ortModDt = now()
+			WHERE 
+				ortSeq = #{ortSeq}
+	</update>
+	
+	<!-- 상세주문록록 추가 -->
+	<insert id="insertOrt">
+		INSERT INTO orderdetail
+			( 
+			  ortCompCd
+			, ortCount
+			, ortAmt
+			, ortShippingCd
+			, ortReleaseDt
+			, ortReleaseNy
+			, ortDelNy
+			, ortRegDt
+			, ortModDt
+			, ordSeq
+			, pdtSeq
+			)
+		VALUES
+			(
+			  #{ortCompCd}
+			, #{ortCount}
+			, #{ortAmt}
+			, #{ortShippingCd}
+			, #{ortReleaseDt}
+			, 0
+			, 0
+			, now()
+			, now()
+			, #{ordSeq}
+			, #{pdtSeq}
+			)
+	</insert>
+	
+	<!-- 주문 출고상태 -->
+    <select id="selectOneOrtReleaseNy" resultMap="resultMapObj">
+    	SELECT (SELECT COUNT(*) FROM orderdetail aa WHERE aa.ordSeq = a.ordSeq AND aa.ortReleaseNy = 1) xorderdetail_0
+    			,(SELECT COUNT(*) FROM orderdetail aa WHERE aa.ordSeq = a.ordSeq) xordortCount
+  		  FROM orders a
+ 		 WHERE 1 = 1
+ 		   AND a.ordSeq = #{ordSeq}
+    </select>
+    
+    <!-- 주문 출고상태 변경 -->
+    <update id="updateOrdReleasedNy">
+    	UPDATE orders
+    	   SET ordModDt = now()
+    	     , ordReleasedNy = #{ordReleasedNy}
+    	 WHERE ordSeq = #{ordSeq}
+    </update>
+	
+</mapper>

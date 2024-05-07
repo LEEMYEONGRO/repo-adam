@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html :class="{ 'theme-dark': dark }" x-data="data()" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+							<div class="w-full overflow-x-auto" id="listData">
+                				<table class="w-full whitespace-no-wrap">
+                  					<!-- 조회결과 리스트 타이틀-->
+                  					<thead>
+                    					<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+                      						<th class="px-2 py-1">
+                        						<input class="text-purple-600 form-checkbox focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray mr-3"
+                          							id="checkboxAll" name="checkboxAll" type="checkbox"
+                          							style="height: 15px; width: 15px">
+                      						</th>
+                      						<th class="px-2 py-1" style="text-align: right;">#</th>
+                      						<th class="px-2 py-1" style="text-align: right;">주문</th>
+                      						<th class="px-4 py-1" style="text-align: right;">주문일</th>
+                      						<th class="px-2 py-1">거래처</th>
+                      						<th class="px-2 py-1">담당자</th>
+                      						<th class="px-4 py-1">상품명</th>
+                      						<th class="px-4 py-1" style="text-align: right;">상품단가</th>
+                      						<th class="px-1 py-1" style="text-align: right;">주문수량</th>
+                      						<th class="px-4 py-1" style="text-align: right;">상품총액</th>
+                      						<th class="px-2 py-1">배송처</th>
+                      						<th class="px-2 py-1">배송담당자</th>
+                      						<th class="px-4 py-1">출고여부</th>
+                      						<th class="px-4 py-1" style="text-align: right;">출고일</th>
+                      						<th class="px-4 py-1">작업</th>
+                      						<th class="px-4 py-1" style="text-align: right;">등록일</th>
+                      						<th class="px-4 py-1" style="text-align: right;">수정일</th>
+                      						<th class="px-4 py-1">삭제여부</th>
+                    					</tr>
+                  					</thead>
+                  
+                  					<!-- 조회결과 리스트 내용 -->
+                  					<tbody id="trList" class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                  						<!-- 체크된 항목 담을 태그 -->
+                  						<input type="hidden" id="shCheckedArray" name="shCheckedArray" value="" />
+                  						
+                  						<tr th:if="${#lists.isEmpty(list)}">
+					                  		<td colspan="18" class="text-center text-purple-600"> 
+												There is no data !!!
+					                  		</td>
+                  						</tr>
+					                  	<tr class="text-gray-700 dark:text-gray-400" th:if="${!#lists.isEmpty(list)}" th:each="list : ${list}">
+					                  		<td class="px-2 py-1">
+					                  			<input class="checkboxList text-purple-600 form-checkbox focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray mr-3"
+					                  				id = "checkbox" name="checkbox" type="checkbox"
+					                  				th:value="${list.ordSeq}"
+					                        		style="height: 15px; width: 15px"
+					                        		th:checked="false" />
+					                    	</td>
+					                    	
+					                    	<td id="ortSeq" name="ortSeq" class="px-2 py-1" th:text="${list.ortSeq}" style="text-align: right;"></td>
+					                    	
+					                    	<td id="ordSeq" name="ordSeq" class="px-2 py-1" th:text="${list.ordSeq}" style="text-align: right;"></td>
+					                    	
+                   							<td class="px-4 py-1" th:text="${#dates.format(list.ordDate, 'yyyy-MM-dd')}" style="text-align: right;"></td>
+					                    	
+											<td id="mbrClientName" name="mbrClientName" class="px-2 py-1" th:text="${list.mbrClientName}"></td>
+											
+											<td id="mbrName" name="mbrName" class="px-2 py-1" th:text="${list.mbrName}"></td>
+											
+											<td id="pdtName" name="pdtName" class="px-4 py-1" th:text="${list.pdtName}"></td>
+
+											<td id="pdtPrice" name="pdtPrice" class="px-4 py-1" th:text="${#numbers.formatInteger(list.pdtPrice,1,'COMMA')}" style="text-align: right;"></td>
+											
+											<td id="ortCount" name="ortCount" class="px-1 py-1" th:text="${list.ortCount}" style="text-align: right;"></td>
+											
+											<td id="ortAmt" name="ortAmt" class="px-4 py-1" th:text="${#numbers.formatInteger(list.ortAmt,1,'COMMA')}" style="text-align: right;"></td>
+					                    	
+					                    	<td id="xmbrClientName" name="xmbrClientName" class="px-2 py-1" th:text="${list.xmbrClientName}"></td>
+											
+											<td id="xmbrName" name="xmbrName" class="px-2 py-1" th:text="${list.xmbrName}"></td>
+											
+					                    	<td class="px-4 py-1">
+					                        	<th:block th:switch="${list.ortReleaseNy}">
+					                        		<span th:case = "0"
+					                        			class="px-2 py-1 font-semibold leading-tight text-red-100 bg-red-600 rounded-full dark:text-white dark:bg-red-700">
+					                        			미출고
+					                        		</span>
+					                        		<span th:case = "1"
+					                        			class="px-2 py-1 font-semibold leading-tight text-blue-100 bg-blue-600 rounded-full dark:text-white dark:bg-blue-700">
+					                        			출&emsp;고
+					                        		</span>
+					                        	</th:block>
+					                        </td>
+					                    	
+					                    	<td class="px-4 py-1" th:text="${#dates.format(list.ortReleaseDt, 'yyyy-MM-dd')}" style="text-align: right;"></td>
+											
+					                    	<td class="px-4 py-1">
+               	    							<button class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple mr-2"
+                            						id="btnUpate" name="btnUpdate">
+													<a th:href="@{/orderDetailForm(ortSeq=${list.ortSeq},ordSeq=${list.ordSeq})}">
+														<svg class="w-5 h-5" data-slot="icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+															<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"></path>
+															<path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"></path>
+														</svg>															
+													</a>
+                      							</button>
+                    						</td>
+
+					                    	<td class="px-4 py-1" th:text="${#dates.format(list.ortRegDt, 'yyyy-MM-dd HH:mm:ss')}" style="text-align: left;"></td>
+					                    	
+					                    	<td class="px-4 py-1" th:text="${#dates.format(list.ortModDt, 'yyyy-MM-dd HH:mm:ss')}" style="text-align: left;"></td>
+					                    	
+					                        <td class="px-4 py-1" style="text-align: right;">
+					                        	<th:block th:switch="${list.ordDelNy}">
+					                        		<span th:case = "0"
+					                        			class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
+					                        			N
+					                        		</span>
+					                        		<span th:case = "1"
+					                        			class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-full dark:bg-orange-700 dark:text-orange-100">
+					                        			Y
+					                        		</span>                        		
+					                        	</th:block>
+					                        </td>        	
+                  						</tr> 
+                  					</tbody>
+                				</table>
+								<!-- 페이지넘김 -->
+								<div th:replace="~{infra/v1/include/bodySdm :: bodyPagingBtn}"></div>
+              				</div>
+</html>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.members.MembersDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.members.MembersDto"></resultMap>
+	
+	<sql id="selectCommonFrom">
+		  FROM members a
+		       LEFT JOIN code b
+		         ON b.cdcSeq = a.mbrGbnCd
+		       LEFT JOIN code c
+		         ON c.cdcSeq = a.mbrClientCd
+		       LEFT JOIN code d
+		         ON d.cdcSeq = a.mbrGenderCd
+		       LEFT JOIN code e
+		         ON e.cdcSeq = a.mbrDeptCd
+		       LEFT JOIN code f
+		         ON f.cdcSeq = a.mbrPosCd              		  
+         WHERE 1 = 1          
+         
+         <if test="shDelNy != null and !shDelNy.equals('')">AND IFNULL(a.mbrDelNy, 0) = #{shDelNy}</if>
+         
+         <choose>
+         	<when test="shOptionDate == 1">AND a.mbrRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+         	<when test="shOptionDate == 2">AND a.mbrModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+         </choose>
+         
+         <choose>
+         	<when test="shOption == 1">AND a.mbrName       LIKE CONCAT('%', #{shValue}, '%')</when>
+         	<when test="shOption == 2">AND a.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when>
+         </choose>         
+	</sql>
+	
+	<sql id="selectCommonSelect">
+		        SELECT a.mbrSeq
+					 , a.mbrGbnCd
+					 , b.cdcName mbrGbnCdName
+					 , a.mbrClientCd
+					 , c.cdcName mbrClientCdName
+					 , a.mbrClientName
+					 , a.mbrName
+					 , a.mbrGenderCd
+					 , d.cdcName mbrGenderCdName
+					 , a.mbrPhone
+					 , a.mbrTel
+					 , a.mbrBirthday
+					 , a.mbrDeptCd
+					 , e.cdcName mbrDeptCdName
+					 , a.mbrPosCd
+					 , f.cdcName mbrPosCdName
+					 , a.mbrCompNo
+					 , a.mbrZip
+					 , a.mbrAddr
+					 , a.mbrAddrDetail
+					 , a.mbrEmail
+					 , a.mbrDelNy
+					 , a.mbrRegDt
+					 , a.mbrModDt        
+	</sql>	
+	
+	<select id="selectList" resultMap="resultMapObj">
+		SELECT aa.*
+		  FROM (
+		  		<include refid="selectCommonSelect"/>
+			    <include refid="selectCommonFrom"/>			 
+		         ORDER BY a.mbrSeq         
+				 LIMIT 99999999999
+               ) aa
+    	 LIMIT #{pgRowCount}
+    	OFFSET #{pgOffset}  		 
+	</select>
+	
+    <!-- 자료건수 -->
+    <select id="selectOneCount">
+        SELECT COUNT(*)
+      <include refid="selectCommonFrom"/>
+    </select>
+    	
+    <!-- 1건 자료조회 -->
+	<select id="selectOne" resultMap="resultMapObj">
+        <include refid="selectCommonSelect"/>
+        <include refid="selectCommonFrom"/>             		          
+         WHERE 1 = 1
+           AND a.mbrSeq = #{mbrSeq}
+	</select>
+	
+	<!-- 회원정보 입력 -->
+	<insert id="insert">
+		INSERT INTO members
+			( 
+			  mbrGbnCd
+			, mbrClientCd
+			, mbrClientName
+			, mbrName
+			, mbrGenderCd
+			, mbrPhone
+			, mbrTel
+			, mbrBirthday
+			, mbrDeptCd
+			, mbrPosCd
+			, mbrCompNo
+			, mbrZip
+			, mbrAddr
+			, mbrAddrDetail
+			, mbrEmail
+			, mbrPassWord
+			, mbrDelNy
+			, mbrRegDt
+			, mbrModDt
+			)
+		VALUES
+			(
+			  #{mbrGbnCd}
+			, #{mbrClientCd}
+			, #{mbrClientName}
+			, #{mbrName}
+			, #{mbrGenderCd}
+			, #{mbrPhone}
+			, #{mbrTel}
+			, #{mbrBirthday}
+			, #{mbrDeptCd}
+			, #{mbrPosCd}
+			, #{mbrCompNo}
+			, #{mbrZip}
+			, #{mbrAddr}
+			, #{mbrAddrDetail}
+			, #{mbrEmail}
+			, #{mbrPassWord}
+			, 0
+			, now()
+			, now()
+			)
+	</insert>
+	
+	<!-- 회원정보 수정 -->
+	<update id="update">
+		UPDATE members
+		   SET mbrGbnCd      = #{mbrGbnCd}
+			 , mbrClientCd   = #{mbrClientCd}
+			 , mbrClientName = #{mbrClientName}
+			 , mbrName       = #{mbrName}
+			 , mbrGenderCd   = #{mbrGenderCd}
+			 , mbrPhone      = #{mbrPhone}
+			 , mbrTel        = #{mbrTel}
+			 , mbrBirthday   = #{mbrBirthday}
+			 , mbrDeptCd     = #{mbrDeptCd}
+			 , mbrPosCd      = #{mbrPosCd}
+			 , mbrCompNo     = #{mbrCompNo}
+			 , mbrZip        = #{mbrZip}
+			 , mbrAddr       = #{mbrAddr}
+			 , mbrAddrDetail = #{mbrAddrDetail}
+			 , mbrEmail      = #{mbrEmail}
+			 , mbrDelNy      = #{mbrDelNy}
+			 , mbrModDt      = now()
+         WHERE 1 = 1		
+           AND mbrSeq = #{mbrSeq}	
+	</update>
+	
+	<!-- 삭제구분변경 -->
+	<update id="updateDelNy">
+		UPDATE members
+		   SET mbrModDt = now()
+		   
+		   <choose>
+		   		<when test="mbrDelNy == 0">, mbrDelNy = 1</when>
+		   		<when test="mbrDelNy == 1">, mbrDelNy = 0</when>
+		   </choose>
+         WHERE 1 = 1		
+           AND mbrSeq = #{mbrSeq}
+	</update>
+	
+	<!-- 회원삭제 -->
+	<delete id="delete">
+		DELETE FROM members
+        WHERE 1 = 1		
+          AND mbrSeq = #{mbrSeq}
+    </delete>
+    
+    <!-- 다중선택자료 삭제 -->
+    <delete id="deleteList">
+    	DELETE
+    	  FROM members
+    	 WHERE 1 = 1
+    	   AND mbrSeq IN 
+    	       <foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+    	         #{list}
+    	       </foreach>
+    </delete>
+    
+    <!-- 회원정보 메모리 상주 -->
+    <select id="selectListCachedMembersArrayList" resultMap="resultMapObj">
+    	SELECT mbrSeq
+    	     , mbrName
+    	     , mbrClientName
+    	  FROM members
+    	 WHERE 1 = 1 
+    	   AND mbrDelNy = 0
+    	 ORDER BY mbrSeq 
+    </select> 
+	
+	<!-- 로그인 id 확인용 -->
+	<select id="selectOneLogin" resultMap="resultMapObj">
+		SELECT mbrSeq
+		     , mbrName
+		     , mbrEmail
+		     , mbrPassWord
+		  FROM members
+		 WHERE 1 = 1
+		   AND mbrEmail = #{mbrEmail}
+		   AND mbrDelNy = 0
+	</select>
+</mapper>

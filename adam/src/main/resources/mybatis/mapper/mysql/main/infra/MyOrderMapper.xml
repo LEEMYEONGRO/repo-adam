@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.myorder.MyOrderDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.myorder.MyOrderDto"></resultMap>
+	
+	
+	<!-- 발주리스트 -->
+	<select id="selectList" resultMap="resultMapObj">
+		select
+			@ROWNUM := @ROWNUM + 1 xRowNum
+			,a.morSeq 
+			,a.morDate 
+			,a.morWarehousingNy 
+			,a.morDelNy 
+			,a.morRegDt 
+			,a.morModDt 
+			,a.mbrSeq 
+			, (SELECT COUNT(*) 
+					      FROM myorderdetail aa 
+					     WHERE aa.morSeq = a.morSeq		        
+					   ) xmorCount
+				from 
+					myorder a
+				where 
+					1=1  AND (@ROWNUM := 0) = 0  
+					
+			 <include refid="selectCommon"/> 
+			 ORDER BY a.morSeq 
+			 LIMIT #{pgRowCount}
+    		 OFFSET #{pgOffset} 
+			 
+	</select>
+	<!-- 발주 수정폼 -->
+	<select id="selectOne" resultMap="resultMapObj">
+		select
+			a.morSeq 
+			,a.morDate 
+			,a.morWarehousingNy 
+			,a.morDelNy 
+			,a.morRegDt 
+			,a.morModDt 
+			,a.mbrSeq 
+			, (SELECT COUNT(*) 
+					      FROM myorderdetail aa 
+					     WHERE aa.morSeq = a.morSeq		        
+					   ) xmorCount
+				from 
+					myorder a
+				where 
+					1=1 AND a.morSeq = #{morSeq}
+	</select>
+	
+	<!-- 발주 등록 -->
+	<insert id="myorderinsert">
+	insert  into myorder
+	(
+		morDate
+		,morWarehousingNy
+		,morDelNy
+		,morRegDt
+		,morModDt
+		,mbrSeq
+	)
+	values
+	(
+		NOW()
+		,0
+		,0
+		,NOW()
+		,NOW()
+		,9
+	)
+	</insert>
+	<!-- 발주 입고여부 변경 -->
+	<update id = "myorderUpdt">
+		update myorder
+		set
+		morWarehousingNy = #{morWarehousingNy}
+		where
+			morSeq = #{morSeq}
+	</update>
+	
+	<!-- 발주 삭제 -->
+	<delete id= "myorderdeletechile">
+	delete 
+		from
+			myorderdetail
+		where 
+			morSeq = #{morSeq}
+	</delete>
+	
+	<!-- 발주 삭제 자식요소 삭제 -->
+	<delete id= "myorderdelete">
+	delete 
+		from
+			myorder
+		where 
+			morSeq = #{morSeq}
+	</delete>
+	
+	
+	
+	<!-- 체크된 리스트 삭제 -->
+	<delete id = "myorderListDelete">
+		delete 
+			from
+				myorder
+			where 1=1
+			AND morSeq IN
+			<foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+	    	         #{list}
+	    	</foreach>
+	</delete>
+	
+	<!-- 체크된 리스트 자식요소 삭제 -->
+	<delete id = "myorderDetailListDeletechile">
+		delete 
+			from
+				myorderdetail
+			where 1=1
+			AND morSeq IN
+			<foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+	    	         #{list}
+	    	</foreach>
+	</delete>
+	<!-- 발주 ny 변경 -->
+	<update id="myorderSelNY">
+	update myorder
+		set
+			morDelNy = 1
+		where
+			morSeq = #{morSeq}
+	</update>
+	
+	
+	
+	
+	<!-- 발주 디테일 리스트 -->
+	<select id="myorderdetailList" resultMap="resultMapObj">
+			select
+				@ROWNUM := @ROWNUM + 1 xRowNum
+				,a.motSeq 
+				,b.morSeq
+				,b.morDate 
+				,a.motCompCd 
+				,c.pdtName 
+				,a.motCount 
+				,a.motAmt
+				,a.motWarehousingNy 
+				,a.motDelNy 
+				,a.motRegDt 
+				,a.motModDt
+				,b.mbrSeq
+				,d.mbrClientName 
+				,d.mbrName
+					from 
+						myorderdetail a
+					join
+						myorder b
+					on 
+						a.morSeq = b.morSeq
+					join 
+						product c
+					on 
+						a.pdtSeq  = c.pdtSeq 
+					join
+						members d
+					on 
+						a.motCompCd = d.mbrSeq
+					where 1=1 AND (@ROWNUM := 0) = 0  
+			 <if test="shDelNy != null and !shDelNy.equals('')">AND IFNULL(a.motDelNy, 0) = #{shDelNy}</if>
+			 <if test="shReceive != null and !shReceive.equals('')">AND IFNULL(a.motWarehousingNy, 0) = #{shReceive}</if>
+	         
+	         <choose>
+	         	<when test="shOptionDate == 1">AND b.morDate BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 2">AND a.motRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 3">AND a.motModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	
+	         	
+	         </choose> 
+	         <choose>
+	         	<when test="shOption == 1">AND a.motSeq  = #{shValue}</when>
+	         	<when test="shOption == 2">AND b.morSeq  = #{shValue}</when>
+	         	<when test="shOption == 3">AND c.pdtName LIKE CONCAT('%', #{shValue}, '%')</when>
+	         	<when test="shOption == 4">AND d.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when>
+	         </choose>
+	         
+	         ORDER BY a.motSeq 
+	         LIMIT #{pgRowCount}
+    		 OFFSET #{pgOffset} 
+	</select>
+	
+	<!-- 발주 디테일 수정폼 -->
+	<select  id="myorderdetailitem" resultMap="resultMapObj">
+	
+	select
+	a.motSeq 
+	,b.morDate 
+	,a.motCompCd 
+	,c.pdtName 
+	,c.pdtSeq
+	,a.motCount 
+	,a.motAmt
+	,a.motWarehousingNy 
+	,a.motDelNy 
+	,a.motRegDt 
+	,a.motModDt
+	,b.mbrSeq 
+		from 
+			myorderdetail a
+		join
+			myorder b
+		on 
+			a.morSeq = b.morSeq
+		join 
+			product c
+		on 
+			a.pdtSeq  = c.pdtSeq 
+		where 
+			a.motSeq = #{motSeq}
+	</select>
+	
+	<!-- 발주사 이름 -->
+	<select  id="clientNameList" resultMap="resultMapObj">
+	select 
+		mbrSeq,
+		mbrClientName,
+		mbrClientCd 
+			from members
+				where 
+				 mbrClientCd  = '4';
+	</select>
+	
+	<!-- 발주등록 발주 제품 리스트 -->
+	<select id="productList" resultMap="resultMapObj">
+	select 
+		pdtSeq 
+		,pdtName 
+		,pdtPrice 
+		,mbrSeq
+			from 
+				product 
+			where 1=1
+	</select>
+	
+	
+	
+	<!-- 발주 디테일 등록 -->
+	<insert id= "myorderdetailinsert">
+	insert into myorderdetail 
+	(
+		motCompCd 
+		,motCount 
+		,motAmt 
+		,motWarehousingNy 
+		,motDelNy 
+		,motRegDt 
+		,motModDt 
+		,morSeq 
+		,pdtSeq 
+	)
+	values
+	(
+		#{motCompCd}
+		,#{motCount}
+		,#{motAmt}
+		,0
+		,0
+		,NOW()
+		,NOW()
+		,#{morSeq}
+		,#{pdtSeq}
+	)
+	</insert>
+	
+	<!-- 발주 디테일 수정 -->
+	<update id="myorderdetailupdt">
+	update 
+		myorderdetail
+		set
+			motCompCd = #{motCompCd}
+			,motCount = #{motCount}
+			,motAmt = #{motAmt}
+			,motWarehousingNy = #{motWarehousingNy}
+			,pdtSeq = #{pdtSeq}
+		where 
+			motSeq = #{motSeq}
+	</update>
+	<!-- 발주 디테일 삭제 -->
+	<delete id= "myorderdetaildelete">
+		delete 
+			from
+				myorderdetail
+			where
+				motSeq = #{motSeq}
+			
+	</delete>
+	<!-- 발주 디테일 다중 삭제 -->
+	<delete id = "myorderDetailListDelete">
+		delete 
+			from
+				myorderdetail
+			where 1=1
+			AND motSeq IN
+			<foreach collection="shCheckedArray" item="list" open="(" close=")" separator=",">
+	    	         #{list}
+	    	</foreach>
+	</delete>
+	
+	<!-- 발주 디테일 ny변경  -->
+	<update id="myorderDetailSelNY">
+	update myorderdetail
+		set
+			motDelNy = 1
+		where
+			motSeq = #{motSeq}
+	</update>
+
+
+	<!-- 발주 카운트 -->
+	<select id="morCount">
+	select 
+		count(*)
+		from 
+			myorder
+			where
+			 1=1 
+	   <include refid="selectCommon"/> 
+	</select>
+	
+	
+	<!-- 발주 디테일 카운트 -->
+	<select id="motCount">
+		select 
+			count(*)
+					from 
+						myorderdetail a
+					join
+						myorder b
+					on 
+						a.morSeq = b.morSeq
+					join 
+						product c
+					on 
+						a.pdtSeq  = c.pdtSeq 
+					join
+						members d
+					on 
+						a.motCompCd = d.mbrSeq
+					where 1=1
+			 <if test="shDelNy != null and !shDelNy.equals('')">AND IFNULL(a.motDelNy, 0) = #{shDelNy}</if>
+			 <if test="shReceive != null and !shReceive.equals('')">AND IFNULL(a.motWarehousingNy, 0) = #{shReceive}</if>
+	         
+	         <choose>
+	         	<when test="shOptionDate == 1">AND b.morDate BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 2">AND a.motRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 3">AND a.motModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         </choose> 
+	         <choose>
+	         	<when test="shOption == 1">AND a.motSeq  = #{shValue}</when>
+	         	<when test="shOption == 2">AND b.morSeq  = #{shValue}</when>
+	         	<when test="shOption == 3">AND c.pdtName LIKE CONCAT('%', #{shValue}, '%')</when>
+	         	<when test="shOption == 4">AND d.mbrClientName LIKE CONCAT('%', #{shValue}, '%')</when>
+	         </choose>
+	</select>
+	
+	
+	
+	
+	<sql id ="selectCommon">
+		<if test="shDelNy != null and !shDelNy.equals('')">AND IFNULL(morDelNy, 0) = #{shDelNy}</if>
+			<if test="shReceive != null and !shReceive.equals('')">AND IFNULL(morWarehousingNy, 0) = #{shReceive}</if>
+	         <choose>
+	         	<when test="shOption == 1">AND morSeq  = #{shValue}</when>
+	         </choose>
+	         <choose>
+	         	<when test="shOptionDate == 1">AND morDate BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 2">AND morRegDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	<when test="shOptionDate == 3">AND morModDt BETWEEN #{shDateStart} AND #{shDateEnd}</when>
+	         	
+	         </choose> 
+	         
+	</sql>
+</mapper>

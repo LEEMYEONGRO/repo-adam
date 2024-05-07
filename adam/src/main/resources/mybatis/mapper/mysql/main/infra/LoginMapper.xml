@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mamamoo.infra.login.LoginDao">
+
+	<resultMap id="resultMapObj" type="com.mamamoo.infra.login.LoginDto"></resultMap>
+	
+	<select id="selectOne" resultMap="resultMapObj">
+		SELECT b.seq  xcodeGroupSeq
+     		 , b.name xcodeGroupName
+     		 , a.delNy
+     		 , a.seq
+     		 , a.name
+     		 , a.regDateTime
+     		 , a.modDateTime
+  		  FROM commoncode a
+         WHERE 1 = 1		
+           AND a.seq = #{seq}	
+	</select>
+	
+	<update id="update">
+		UPDATE commoncode
+		   SET name = #{name}
+		     , modDateTime = now()
+         WHERE 1 = 1		
+           AND seq = #{seq}	
+	</update>
+
+</mapper>
